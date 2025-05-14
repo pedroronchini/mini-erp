@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Cupons extends Model
 {
     protected $fillable = [
-        'codigo',
-        'desconto',
-        'validade',
+        'code',
+        'discount',
+        'expires_at',
         'min_subtotal'
     ];
 }

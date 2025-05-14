@@ -8,13 +8,11 @@ class Products extends Model
 {
     protected $fillable = [
         'name',
-        'preco',
-        'variacoes'
+        'price',
+        'variations'
     ];
 
-    protected $casts = [
-        'variacoes' => 'array'
-    ];
+    protected $casts = ['variations' => 'array'];
 
     public function storages()
     {

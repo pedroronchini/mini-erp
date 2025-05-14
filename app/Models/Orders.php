@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Orders extends Model
 {
     protected $fillable = [
-        'itens',
+        'items',
         'subtotal',
-        'frete',
+        'shipping',
         'total',
         'status',
-        'endereco_entrega'
+        'delivery_address'
     ];
 
-    protected $casts = ['itens' => 'array'];
+    protected $casts = ['items' => 'array'];
 }

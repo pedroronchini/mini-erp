@@ -9,9 +9,9 @@ class Storage extends Model
     protected $table = 'storage';
 
     protected $fillable = [
-        'products_id',
-        'variacao',
-        'quantidade'
+        'product_id',
+        'variation',
+        'quantity'
     ];
 
     public function products()
