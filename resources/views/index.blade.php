@@ -1,43 +1,43 @@
-@extends('layouts.app')
-@section('content')
-<div class="container">
-  <h1>Produtos</h1>
+@extends('layout')
 
-  {{-- Formulário de produto --}}
-  <form method="POST" action="{{ route('produtos.store') }}">
+@section('content')
+<div class="container py-4">
+  <h1>Produtos</h1>
+  <form action="{{ route('products.store') }}" method="POST">
     @csrf
-    <div class="mb-3">
-      <label>Nome</label>
-      <input name="nome" class="form-control">
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <input name="name" class="form-control" placeholder="Nome" required>
+      </div>
+      <div class="col-md-2 mb-3">
+        <input name="price" type="number" step=".01" class="form-control" placeholder="Preço" required>
+      </div>
+      <div class="col-md-2 mb-3">
+        <input name="stocks[default]" type="number" class="form-control" placeholder="Estoque" required>
+      </div>
+      <div class="col-md-2 mb-3">
+        <button class="btn btn-primary">Salvar</button>
+      </div>
     </div>
-    <div class="mb-3">
-      <label>Preço</label>
-      <input name="preco" type="number" step="0.01" class="form-control">
-    </div>
-    <div class="mb-3">
-      <label>Quantidade</label>
-      <input name="quantidade" type="number" class="form-control">
-    </div>
-    <button class="btn btn-primary">Salvar</button>
   </form>
 
-  {{-- Tabela de produtos --}}
   <table class="table mt-4">
     <thead><tr><th>Nome</th><th>Preço</th><th>Estoque</th><th>Ações</th></tr></thead>
     <tbody>
-    @foreach($produtos as $p)
+      @foreach($products as $p)
       <tr>
-        <td>{{ $p->nome }}</td>
-        <td>{{ number_format($p->preco,2,',','.') }}</td>
-        <td>{{ $p->estoques->sum('quantidade') }}</td>
+        <td>{{ $p->name }}</td>
+        <td>R$ {{ number_format($p->price,2,',','.') }}</td>
+        <td>{{ $p->stocks->sum('quantity') }}</td>
         <td>
-          <form method="POST" action="{{ route('cart.add',$p->id) }}">
+          <form action="{{ route('cart.add', $p) }}" method="POST" class="d-inline">
             @csrf
+            <input type="hidden" name="variation" value="default">
             <button class="btn btn-success btn-sm">Comprar</button>
           </form>
         </td>
       </tr>
-    @endforeach
+      @endforeach
     </tbody>
   </table>
 </div>

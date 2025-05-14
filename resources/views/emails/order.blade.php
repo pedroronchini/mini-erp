@@ -1,12 +1,17 @@
-<x-mail::message>
-# Introduction
+@component('mail::message')
+# Pedido #{{ $order->id }} confirmado
 
-The body of your message.
+Olá {{ $order->customer_name }},
+Seu pedido foi recebido com sucesso.
 
-<x-mail::button :url="''">
-Button Text
-</x-mail::button>
+**Subtotal:** R$ {{ number_format($order->subtotal,2,',','.') }}
+**Frete:** R$ {{ number_format($order->shipping_cost,2,',','.') }}
+**Total:** R$ {{ number_format($order->total,2,',','.') }}
 
-Thanks,<br>
-{{ config('app.name') }}
-</x-mail::message>
+@component('mail::panel')
+Endereço de entrega:
+{{ $order->address }}
+@endcomponent
+
+Obrigado por comprar conosco!
+@endcomponent

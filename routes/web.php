@@ -6,9 +6,9 @@ use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
 // routes/web.php
-Route::get('/produtos',[ProductsController::class,'index'])->name('produtos.index');
-Route::post('/produtos',[ProductsController::class,'store'])->name('produtos.store');
-Route::put('/produtos/{id}',[ProductsController::class,'update'])->name('produtos.update');
+Route::get('/produtos',[ProductsController::class,'index'])->name('products.index');
+Route::post('/produtos',[ProductsController::class,'store'])->name('products.store');
+Route::put('/produtos/{id}',[ProductsController::class,'update'])->name('products.update');
 
 Route::post('/cart/add/{id}',[CartController::class,'add'])->name('cart.add');
 Route::get('/cart',[CartController::class,'index'])->name('cart.index');

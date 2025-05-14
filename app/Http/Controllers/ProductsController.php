@@ -10,7 +10,7 @@ class ProductsController extends Controller
     public function index()
     {
         $products = Products::with('stocks')->get();
-        return view('products.index', compact('products'));
+        return view('index', compact('products'));
     }
 
     public function store(Request $request)
