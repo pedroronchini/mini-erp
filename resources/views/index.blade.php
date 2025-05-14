@@ -13,7 +13,7 @@
         <input name="price" type="number" step=".01" class="form-control" placeholder="Preço" required>
       </div>
       <div class="col-md-2 mb-3">
-        <input name="stocks[default]" type="number" class="form-control" placeholder="Estoque" required>
+        <input name="quantity" type="number" class="form-control" placeholder="Estoque" required>
       </div>
       <div class="col-md-2 mb-3">
         <button class="btn btn-primary">Salvar</button>
@@ -24,13 +24,13 @@
   <table class="table mt-4">
     <thead><tr><th>Nome</th><th>Preço</th><th>Estoque</th><th>Ações</th></tr></thead>
     <tbody>
-      @foreach($products as $p)
+      @foreach($products as $product)
       <tr>
-        <td>{{ $p->name }}</td>
-        <td>R$ {{ number_format($p->price,2,',','.') }}</td>
-        <td>{{ $p->stocks->sum('quantity') }}</td>
+        <td>{{ $product->name }}</td>
+        <td>R$ {{ number_format($product->price,2,',','.') }}</td>
+        <td>{{ $product->storages->sum('quantity') }}</td>
         <td>
-          <form action="{{ route('cart.add', $p) }}" method="POST" class="d-inline">
+          <form action="{{ route('cart.add', $product) }}" method="POST" class="d-inline">
             @csrf
             <input type="hidden" name="variation" value="default">
             <button class="btn btn-success btn-sm">Comprar</button>

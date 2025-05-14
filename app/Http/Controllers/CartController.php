@@ -6,87 +6,102 @@ use App\Mail\OrderPlaced;
 use App\Models\Cupons;
 use App\Models\Orders;
 use App\Models\Products;
+use App\Models\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class CartController extends Controller
 {
-    public function add($productId)
+
+    protected function calcShipping($subtotal)
     {
-        $cart = session('cart', []);
+        if ($subtotal >= 200) return 0;
+        if ($subtotal >= 52 && $subtotal <= 166.59) return 15;
+        return 20;
+    }
 
-        $cart[$productId] = ($cart[$productId] ?? 0) + 1;
+    public function add(Request $req, Products $product)
+    {
+        $cart = session()->get('cart', []);
+        $variation = $req->input('variation');
+        $key = $product->id . '_' . $variation;
+        $qty = ($cart[$key]['qty'] ?? 0) + 1;
 
+        // checar estoque
+        $stock = $product->storages()
+            ->where('variation', $variation)->first();
+        if (!$stock || $qty > $stock->quantity) {
+            return back()->with('error', 'Sem estoque!');
+        }
+
+        $cart[$key] = [
+            'product_id' => $product->id,
+            'name' => $product->name,
+            'variation' => $variation,
+            'price' => $product->price,
+            'qty' => $qty
+        ];
         session(['cart' => $cart]);
-
         return back();
     }
 
-    public function index()
+    public function show()
     {
-        $cartItems = session('cart', []);
-
-        $products = Products::whereIn('id', array_keys($cartItems))->get();
-
-        return view('cart.index', compact('products', 'cartItems'));
+        $cart = session('cart', []);
+        $subtotal = collect($cart)->sum(fn($i) => $i['price'] * $i['qty']);
+        $shipping = $this->calcShipping($subtotal);
+        return view('cart.index', compact('cart', 'subtotal', 'shipping'));
     }
 
-    public function checkout(Request $request)
+    public function applyCoupon(Request $req)
     {
-        $cartItems = session('cart', []);
-
-        $products = Products::whereIn('id', array_keys($cartItems))->get();
-
-        $items = [];
-        $subtotal = 0;
-
-        foreach ($products as $product) {
-            $qty = $cartItems[$product->id];
-            $items[] = ['name' => $product->name, 'quantity' => $qty, 'price' => $product->price];
-            $subtotal += $product->price * $qty;
-
-            $stock = $product->stocks()->whereNull('variation')->first();
-            $stock->decrement('quantity', $qty);
+        $code = $req->input('code');
+        $coupon = Cupons::where('code', $code)
+            ->where('expires_at', '>=', now())
+            ->firstOrFail();
+        $subtotal = collect(session('cart'))->sum(fn($i) => $i['price'] * $i['qty']);
+        if ($subtotal < $coupon->min_subtotal) {
+            return back()->with('error', 'Subtotal mínimo não atingido');
         }
+        session(['coupon' => $coupon->toArray()]);
+        return back();
+    }
 
-        if ($subtotal >= 52 && $subtotal <= 166.59) {
-            $shipping = 15;
-        } elseif ($subtotal > 200) {
-            $shipping = 0;
-        } else {
-            $shipping = 20;
+    public function checkout(Request $req)
+    {
+        $cart = session('cart', []);
+        $subtotal = collect($cart)->sum(fn($i) => $i['price'] * $i['qty']);
+        $shipping = $this->calcShipping($subtotal);
+        $discount = 0;
+        if ($c = session('coupon')) {
+            $discount = $c['type'] == 'fixed'
+                ? $c['value']
+                : $subtotal * ($c['value'] / 100);
         }
-
-        if ($coupon = session('coupon')) {
-            if ($subtotal >= $coupon['min_subtotal']) {
-                $subtotal -= $coupon['discount'];
-            }
-        }
+        $total = $subtotal + $shipping - $discount;
 
         $order = Orders::create([
-            'items' => $items,
+            'items' => $cart,
             'subtotal' => $subtotal,
-            'shipping' => $shipping,
-            'total' => $subtotal + $shipping,
-            'delivery_address' => $request->delivery_address,
+            'shipping_cost' => $shipping,
+            'total' => $total,
+            'customer_name' => $req->input('name'),
+            'customer_email' => $req->input('email'),
+            'address' => $req->input('address'),
         ]);
 
-        Mail::to($request->email)->send(new OrderPlaced($order));
+        // atualizar estoque
+        foreach ($cart as $item) {
+            Storage::where('product_id', $item['product_id'])
+                ->where('variation', $item['variation'])
+                ->decrement('quantity', $item['qty']);
+        }
+
+        // envio de e-mail
+        // Mail::to($order->customer_email)
+        //     ->send(new OrderPlaced($order));
 
         session()->forget(['cart', 'coupon']);
-
         return view('cart.success', compact('order'));
-    }
-
-    public function applyCoupon(Request $request)
-    {
-        $coupon = Cupons::where('code', $request->code)->first();
-
-        if ($coupon && $coupon->expires_at >= now()->toDateString()) {
-            session(['coupon' => $coupon->toArray()]);
-
-            return back()->with('success', 'Coupon applied successfully.');
-        }
-        return back()->with('error', 'Invalid coupon.');
     }
 }

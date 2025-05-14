@@ -9,29 +9,26 @@ class ProductsController extends Controller
 {
     public function index()
     {
-        $products = Products::with('stocks')->get();
+        $products = Products::with('storages')->get();
         return view('index', compact('products'));
     }
 
     public function store(Request $request)
     {
+
         $data = $request->validate([
             'name' => 'required|string',
             'price' => 'required|numeric',
-            'variations' => 'nullable|array',
-            'variations.*' => 'string',
             'quantity' => 'required|integer',
             'variation' => 'nullable|string',
         ]);
 
         $product = Products::create([
             'name' => $data['name'],
-            'price' => $data['price'],
-            'variations' => $data['variations'] ?? [],
+            'price' => $data['price']
         ]);
 
-        $product->stocks()->create([
-            'variation' => $data['variation'] ?? null,
+        $product->storages()->create([
             'quantity' => $data['quantity'],
         ]);
 
@@ -50,7 +47,7 @@ class ProductsController extends Controller
         $product->update($validated);
 
         if ($request->has('quantity')) {
-            $stock = $product->stocks()->first();
+            $stock = $product->storages()->first();
             $stock->update(['quantity' => $request->quantity]);
         }
 

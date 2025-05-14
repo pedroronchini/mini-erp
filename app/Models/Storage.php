@@ -9,7 +9,7 @@ class Storage extends Model
     protected $table = 'storage';
 
     protected $fillable = [
-        'product_id',
+        'products_id',
         'variation',
         'quantity'
     ];
