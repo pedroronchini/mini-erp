@@ -1,7 +1,19 @@
 <?php
 
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// routes/web.php
+Route::get('/produtos',[ProductsController::class,'index'])->name('produtos.index');
+Route::post('/produtos',[ProductsController::class,'store'])->name('produtos.store');
+Route::put('/produtos/{id}',[ProductsController::class,'update'])->name('produtos.update');
+
+Route::post('/cart/add/{id}',[CartController::class,'add'])->name('cart.add');
+Route::get('/cart',[CartController::class,'index'])->name('cart.index');
+Route::post('/cart/checkout',[CartController::class,'checkout'])->name('cart.checkout');
+Route::post('/cart/apply-coupon',[CartController::class,'applyCoupon'])->name('cart.applyCoupon');
+
+// Webhook
+Route::post('/webhook/order',[WebhookController::class,'handle']);
