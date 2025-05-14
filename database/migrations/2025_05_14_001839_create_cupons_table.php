@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('cupons', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->decimal('preco', 10,2);
-            $table->json('variacoes')->nullable();
+            $table->string('codigo')->unique();
+            $table->decimal('desconto',10,2);
+            $table->date('validade');
+            $table->decimal('min_subtotal',10,2);
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('cupons');
     }
 };
