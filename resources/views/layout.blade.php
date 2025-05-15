@@ -15,6 +15,11 @@
             <a class="navbar-brand" href="{{ route('products.index') }}">Mini ERP</a>
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ route('coupons.index') }}">
+                        Cupom
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{{ route('cart.show') }}">
                         Carrinho
                     </a>

@@ -8,8 +8,13 @@ class Cupons extends Model
 {
     protected $fillable = [
         'code',
-        'discount',
+        'type',
+        'value',
+        'min_subtotal',
         'expires_at',
-        'min_subtotal'
+    ];
+
+     protected $casts = [
+        'expires_at' => 'date',       // ou 'datetime'
     ];
 }

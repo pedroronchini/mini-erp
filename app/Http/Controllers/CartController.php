@@ -73,10 +73,10 @@ class CartController extends Controller
         $subtotal = collect($cart)->sum(fn($i) => $i['price'] * $i['qty']);
         $shipping = $this->calcShipping($subtotal);
         $discount = 0;
-        if ($c = session('coupon')) {
-            $discount = $c['type'] == 'fixed'
-                ? $c['value']
-                : $subtotal * ($c['value'] / 100);
+        if ($coupon = session('coupon')) {
+            $discount = $coupon['type'] == 'fixed'
+                ? $coupon['value']
+                : $subtotal * ($coupon['value'] / 100);
         }
         $total = $subtotal + $shipping - $discount;
 
@@ -96,10 +96,6 @@ class CartController extends Controller
                 ->where('variation', $item['variation'])
                 ->decrement('quantity', $item['qty']);
         }
-
-        // envio de e-mail
-        // Mail::to($order->customer_email)
-        //     ->send(new OrderPlaced($order));
 
         session()->forget(['cart', 'coupon']);
         return view('cart.success', compact('order'));

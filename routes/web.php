@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,9 @@ Route::post('/cart/add/{product}', [CartController::class,'add'])->name('cart.ad
 Route::get('/cart', [CartController::class,'show'])->name('cart.show');
 Route::post('/cart/apply-coupon', [CartController::class,'applyCoupon'])->name('cart.coupon');
 Route::post('/cart/checkout', [CartController::class,'checkout'])->name('cart.checkout');
+
+Route::resource('coupons', CouponController::class)
+     ->except(['show']);
 
 // Webhook
 Route::post('/webhook/order',[WebhookController::class,'handle']);

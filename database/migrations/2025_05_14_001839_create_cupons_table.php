@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('cupons', function (Blueprint $table) {
             $table->id();
             $table->string('code')->unique();
-            $table->decimal('discount', 10, 2);
+            $table->enum('type', ['fixed','percent']);
+            $table->decimal('value', 10, 2);
+            $table->decimal('min_subtotal', 10, 2)->default(0);
             $table->date('expires_at');
-            $table->decimal('min_subtotal', 10, 2);
             $table->timestamps();
         });
     }
