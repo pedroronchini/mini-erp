@@ -23,13 +23,12 @@ class CartController extends Controller
     public function add(Request $req, Products $product)
     {
         $cart = session()->get('cart', []);
-        $variation = $req->input('variation');
-        $key = $product->id . '_' . $variation;
+        $key = $product->id;
         $qty = ($cart[$key]['qty'] ?? 0) + 1;
 
         // checar estoque
         $stock = $product->storages()
-            ->where('variation', $variation)->first();
+            ->where('id', $key)->first();
         if (!$stock || $qty > $stock->quantity) {
             return back()->with('error', 'Sem estoque!');
         }
@@ -37,7 +36,6 @@ class CartController extends Controller
         $cart[$key] = [
             'product_id' => $product->id,
             'name' => $product->name,
-            'variation' => $variation,
             'price' => $product->price,
             'qty' => $qty
         ];
@@ -58,7 +56,12 @@ class CartController extends Controller
         $code = $req->input('code');
         $coupon = Cupons::where('code', $code)
             ->where('expires_at', '>=', now())
-            ->firstOrFail();
+            ->first();
+
+        if (!$coupon) {
+            return back()->with('error', 'Cupom não existe');
+        }
+
         $subtotal = collect(session('cart'))->sum(fn($i) => $i['price'] * $i['qty']);
         if ($subtotal < $coupon->min_subtotal) {
             return back()->with('error', 'Subtotal mínimo não atingido');
@@ -92,8 +95,7 @@ class CartController extends Controller
 
         // atualizar estoque
         foreach ($cart as $item) {
-            Storage::where('product_id', $item['product_id'])
-                ->where('variation', $item['variation'])
+            Storage::where('products_id', $item['product_id'])
                 ->decrement('quantity', $item['qty']);
         }
 

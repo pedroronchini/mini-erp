@@ -9,11 +9,12 @@ class Orders extends Model
     protected $fillable = [
         'items',
         'subtotal',
-        'shipping',
+        'shipping_cost',
         'total',
-        'status',
-        'delivery_address'
+        'customer_name',
+        'customer_email',
+        'address'
     ];
 
-    protected $casts = ['items' => 'array'];
+    protected $casts = ['items'=>'array'];
 }

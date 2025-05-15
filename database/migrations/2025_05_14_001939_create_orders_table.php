@@ -15,10 +15,12 @@ return new class extends Migration
             $table->id();
             $table->json('items');
             $table->decimal('subtotal', 10, 2);
-            $table->decimal('shipping', 10, 2);
+            $table->decimal('shipping_cost', 10, 2);
             $table->decimal('total', 10, 2);
-            $table->string('status')->default('pending');
-            $table->text('delivery_address');
+            $table->string('customer_name');
+            $table->string('customer_email');
+            $table->text('address');
+            $table->enum('status', ['pending','paid','shipped','canceled'])->default('pending');
             $table->timestamps();
         });
     }
